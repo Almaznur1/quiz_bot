@@ -14,10 +14,11 @@ logger = logging.getLogger('tg_bot')
 CHOOSING, ANSWER_WAITING = range(2)
 
 
-def start(update: Update, context: CallbackContext):
+def start(update: Update, context: CallbackContext, reply_markup):
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='Привет! Я бот для викторин. Нажми "Новый вопрос" для начала!'
+        text='Привет! Я бот для викторин. Нажми "Новый вопрос" для начала!',
+        reply_markup=reply_markup
     )
     return CHOOSING
 
@@ -105,16 +106,24 @@ def main():
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
     db = redis.Redis(
-      host=redis_host,
-      port=redis_port,
-      password=redis_password,
-      decode_responses=True
-      )
+        host=redis_host,
+        port=redis_port,
+        password=redis_password,
+        decode_responses=True
+    )
 
     quiz_data = get_quiz_data()
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
+        entry_points=[
+            CommandHandler(
+                'start',
+                lambda update, context: start(
+                    update, context,
+                    reply_markup=reply_markup
+                )
+            )
+        ],
 
         states={
             CHOOSING: [
