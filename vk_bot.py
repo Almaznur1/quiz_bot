@@ -72,15 +72,15 @@ def main():
                 db.set(event.user_id, question)
                 send_message(event, vk_api, question)
 
-            elif not (question := db.get(event.user_id)):
+            elif not db.get(event.user_id):
                 continue
 
-            elif event.text == quiz_data[question]:
+            elif event.text == quiz_data[db.get(event.user_id)]:
                 message = 'Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»'
                 send_message(event, vk_api, message)
 
             elif event.text == 'Сдаться':
-                message = f'Правильный ответ:\n{quiz_data[question]}'
+                message = f'Правильный ответ:\n{quiz_data[db.get(event.user_id)]}'
                 send_message(event, vk_api, message)
 
             else:
