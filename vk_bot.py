@@ -1,9 +1,10 @@
 import random
 import logging
 import redis
+import argparse
 from dotenv import load_dotenv
 from os import getenv
-from common_functions import get_quiz_data
+from get_quiz_data import get_quiz_data
 
 import vk_api as vk
 from vk_api.longpoll import VkLongPoll, VkEventType
@@ -25,6 +26,14 @@ def main():
         level=logging.INFO
     )
 
+    parser = argparse.ArgumentParser(
+        description='VKontakte bot for quizzes')
+    parser.add_argument('--path',
+                        type=str,
+                        default='quiz_questions.txt',
+                        help='specify the quiz data path')
+    args = parser.parse_args()
+
     load_dotenv()
     vk_api_key = getenv('VK_API_KEY')
     vk_user_id = getenv('VK_USER_ID')
@@ -39,7 +48,7 @@ def main():
       decode_responses=True
       )
 
-    quiz_data = get_quiz_data()
+    quiz_data = get_quiz_data(args.path)
     vk_session = vk.VkApi(token=vk_api_key)
     vk_api = vk_session.get_api()
 

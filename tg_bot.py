@@ -1,9 +1,10 @@
 import logging
 import random
 import redis
+import argparse
 from dotenv import load_dotenv
 from os import getenv
-from common_functions import get_quiz_data
+from get_quiz_data import get_quiz_data
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (Updater, CommandHandler, CallbackContext,
                           MessageHandler, Filters, ConversationHandler)
@@ -91,6 +92,14 @@ def main():
         level=logging.INFO
     )
 
+    parser = argparse.ArgumentParser(
+        description='Telegram bot for quizzes')
+    parser.add_argument('--path',
+                        type=str,
+                        default='quiz_questions.txt',
+                        help='specify the quiz data path')
+    args = parser.parse_args()
+
     load_dotenv()
     tg_bot_token = getenv('TG_BOT_TOKEN')
     redis_host = getenv('REDIS_HOST')
@@ -112,7 +121,7 @@ def main():
         decode_responses=True
     )
 
-    quiz_data = get_quiz_data()
+    quiz_data = get_quiz_data(args.path)
 
     conv_handler = ConversationHandler(
         entry_points=[
